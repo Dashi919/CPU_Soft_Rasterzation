@@ -1,0 +1,57 @@
+﻿<Window x:Class="CPU_Soft_Rasterization.MainWindow"
+        x:Name="_window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CPU_Soft_Rasterization"
+        mc:Ignorable="d"
+        Title="WPF_CPU_Soft_Rasterzation" Height="470" MaxHeight="470" MinHeight ="470"  Width="800" MaxWidth="800" MinWidth="800"  ResizeMode="NoResize" KeyDown="Window_KeyDown" MouseMove ="Window_MouseMove">
+    <Grid Width="800" Height="450">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width ="600"/>
+            <ColumnDefinition Width= "200"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="1" x:Name = "secondGrid" Width="Auto" Height="Auto">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="250"/>
+                <RowDefinition Height="auto"/>
+            </Grid.RowDefinitions>
+            <Button Content="Add Cube" Margin="0,130,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left"  Click="AddButton_Click" Height="31" Width="100"/>
+            <Button Content="Delete" Margin="100,130,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Left" Click="DeleteButton_Click" Height="31" Width="100"/>
+            <Button Content="RayTracing!" Margin="0,161,0,0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center"  Click="RaytrcingButton_Click" Height="24" Width="200"/>
+            <ListBox  x:Name="hierachy" SelectionChanged="ListBox_SelectionChanged" Margin="0,26,0,43" Background="#FFB6D6EB" >
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin ="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="100" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text ="{Binding Title}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Hierarchy" VerticalAlignment="Top" Width="200" Height="26" FontSize="16" FontWeight="Bold" Background="#FF9C9C9C"/>
+            <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Text="Inspector" VerticalAlignment="Top" Width="200" Height="26"  FontSize="16" FontWeight="Bold" Background="#FF9C9C9C" Margin="0,207,0,0"/>
+            <ListBox  x:Name="inspector" Margin="0,233,0,55" Background="#FFB6D6EB" Grid.RowSpan="2">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin ="0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200" />
+                            </Grid.ColumnDefinitions>
+                          <TextBlock Text ="{Binding name}"/>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+        <Image x:Name="sceneImage" HorizontalAlignment="Left" Height="435" VerticalAlignment="Top" Width="600"  />
+        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Scene" VerticalAlignment="Top" Width="55" Height="26" Background="#FF9C9C9C" FontSize="16" FontWeight="Bold"/>
+
+
+    </Grid>
+</Window>

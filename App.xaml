@@ -1,0 +1,12 @@
+﻿<Application x:Class="CPU_Soft_Rasterization.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CPU_Soft_Rasterization"
+             StartupUri="MainWindow.xaml"
+             Exit ="App_Exit"
+             >
+           
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>

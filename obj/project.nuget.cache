@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "z5Vq3Fa8OyPKk3GPfLsbq6CEFYTwbNvY1ozpSXmed0pUl1C1PAs3eDhNHwoZ3EoVNdb8mOndWMCTnYjZol72SA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\11020\\OneDrive\\C#Project\\CPU_Soft_Rasterzation\\CPU_Soft_Rasterization.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\11020\\.nuget\\packages\\microsoft.win32.systemevents\\6.0.0\\microsoft.win32.systemevents.6.0.0.nupkg.sha512",
+    "C:\\Users\\11020\\.nuget\\packages\\system.drawing.common\\6.0.0\\system.drawing.common.6.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
