@@ -1,10 +1,10 @@
 # CPU_Soft_Rasterzation
  A CPU soft rasterization by using wpf and c#
- °æ±¾ 0.1 ÒÑ¾­ÊµÏÖ¹âÕ¤»¯¹¦ÄÜ
- WSAD¿ÉÒÔË®Æ½ÒÆ¶¯ÉãÏñ»ú£¬¿ÉÒÔÍù³¡¾°Ìí¼ÓCube£¬µ«CubeÔ½¶à£¬Ã¿Ö¡¸üÐÂµÄÊ±¼äÔ½³¤
+ ç‰ˆæœ¬ 0.1 å·²ç»å®žçŽ°å…‰æ …åŒ–åŠŸèƒ½
+ WSADå¯ä»¥æ°´å¹³ç§»åŠ¨æ‘„åƒæœºï¼Œå¯ä»¥å¾€åœºæ™¯æ·»åŠ Cubeï¼Œä½†Cubeè¶Šå¤šï¼Œæ¯å¸§æ›´æ–°çš„æ—¶é—´è¶Šé•¿
 
- ½ÓÏÂÀ´ÒªÌí¼ÓµÄÌØÐÔºÍÐÞ¸´µÄBUGÓÐ£º
- 1.ÒõÓ°µÄ¼ÆËã£¨Shadow Map£©
- 2.²ÎÊý·´ÉäÔÚUIÉÏ£¨Reflection£©
- 3.ÉãÏñ»úµÄÐý×ª£¨Camera Rotation£©
- 4.ÀëÏß¹âÏß×·×Ù (ayTracing)
+ æŽ¥ä¸‹æ¥è¦æ·»åŠ çš„ç‰¹æ€§å’Œä¿®å¤çš„BUGæœ‰ï¼š
+ 1.é˜´å½±çš„è®¡ç®—ï¼ˆShadow Mapï¼‰
+ 2.å‚æ•°åå°„åœ¨UIä¸Šï¼ˆReflectionï¼‰
+ 3.æ‘„åƒæœºçš„æ—‹è½¬ï¼ˆCamera Rotationï¼‰
+ 4.ç¦»çº¿å…‰çº¿è¿½è¸ª (RayTracing)
