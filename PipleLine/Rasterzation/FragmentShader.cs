@@ -40,7 +40,7 @@ namespace CPU_Soft_Rasterization
 
             if (m_fragment.objectBuffer == null)
                 return finalColor;
-            //lights
+            //blinn-phong lights
             for (int i = 0; i < m_lights.Length; i++)
             {
                 var radiance = m_lights[i].GetRadiance(m_pos);
@@ -55,7 +55,7 @@ namespace CPU_Soft_Rasterization
             //shadow
             if (m_shadowmap != null && m_shadowmap.IsGenetated())
             {
-                finalColor *= m_shadowmap.GetVisability(m_pos);
+                finalColor *= m_shadowmap.GetVisability(m_pos,true);
             }
 
             return baseColor.CwiseProduct(finalColor.Clamp(Vector3f.Zero(),Vector3f.Identity()));

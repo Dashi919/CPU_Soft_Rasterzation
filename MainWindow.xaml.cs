@@ -35,6 +35,8 @@ namespace CPU_Soft_Rasterization
         BindingList<SceneObject> sceneObjectList;
         delegate void MoveCamera(Vector3f distance);
         MoveCamera cameraController;
+
+
         public MainWindow()
         {
             InitializeComponent();
@@ -50,8 +52,12 @@ namespace CPU_Soft_Rasterization
             mainScene.AddLight(mainLight);
             Light secLight = new Light(new Vector3f(-10), new Vector3f(500));
             mainScene.AddLight(secLight);
-            Cube cube = new Cube(new Vector3f(-1, -1, 2), new Vector3f(0, 0, 1f));
+            Cube cube = new Cube(new Vector3f(-1, 0, 2), new Vector3f(0, 0, 1f));
             Add_Scene_Objcet(cube, "Cube");
+            Cube cube1 = new Cube(new Vector3f(-1, -2, 2), new Vector3f(1, 0, 1f));
+
+
+            Add_Scene_Objcet(cube1, "Cube1");
 
 
 
@@ -141,10 +147,14 @@ namespace CPU_Soft_Rasterization
             inspector.Items.Clear();
             Type type = typeof(Object);
             System.Reflection.PropertyInfo[] propertyInfo = type.GetProperties();
+
             foreach (var info in propertyInfo)
             {
-                inspector.Items.Add(info.Name.ToString());
+                inspector.Items.Add(info.Name);
             }
+
+         
+          
         }
 
 
@@ -209,6 +219,11 @@ namespace CPU_Soft_Rasterization
             {
                 cameraController = mainScene.MoveCam;
                 cameraController(camMove);
+            }
+
+            if(e.Key == Key.J)
+            {
+                mainScene.ShowOrHideShadowMap();
             }
         }
     }

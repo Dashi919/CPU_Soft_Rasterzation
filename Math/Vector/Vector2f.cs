@@ -16,11 +16,7 @@ namespace CPU_Soft_Rasterization.Math.Vector
         {
             return new Vector2f(1, 1);
         }
-        float dotProduct(Vector2f vector)
-        {
-            return x * x + y * y / Distance();
-        }
-
+     
         Vector2f normalize()
         {
             float distance = Distance();
@@ -32,6 +28,10 @@ namespace CPU_Soft_Rasterization.Math.Vector
             return MathF.Sqrt(x * x + y * y);
         }
 
+        public float dotProduct(Vector2f vector)
+        {
+            return x * vector.x + y * vector.y;
+        }
         public static Vector2f operator +(Vector2f a, Vector2f b)
         {
             return new Vector2f(a.x + b.x, a.y + b.y);

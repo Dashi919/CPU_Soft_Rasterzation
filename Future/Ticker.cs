@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CPU_Soft_Rasterization.Main
+namespace CPU_Soft_Rasterization.Future
 {
     public class Ticker
     {

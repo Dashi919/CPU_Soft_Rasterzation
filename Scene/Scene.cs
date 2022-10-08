@@ -7,13 +7,19 @@ using CPU_Soft_Rasterization.Math.Vector;
 using CPU_Soft_Rasterization.Math.Martix;
 using System.Reflection.Metadata;
 using System.Windows;
+using System.Windows.Media.Animation;
 
 namespace CPU_Soft_Rasterization
 {
     public class Scene
     {
-        const float PI = 3.14159f;
-        float renderTick = 0;
+        public float renderTick
+        {
+           get { return m_renderTick; }
+           private set { m_renderTick = value; }
+        }
+        private float m_renderTick = 0;
+       
         public enum RenderType
         {
             Rasterization,
@@ -29,7 +35,7 @@ namespace CPU_Soft_Rasterization
         public float fov, znear, zfar, aspectRatio;
         private BVHTree bvhTree;
         private RenderType m_renderType;
-
+        public bool isShowShadowMap = false;
 
         public Scene(int width, int height, float fov, float znear, float zfar)
         {
@@ -167,6 +173,12 @@ namespace CPU_Soft_Rasterization
             return projcection;
         }
 
+
+        public void ShowOrHideShadowMap()
+        {
+            isShowShadowMap = !isShowShadowMap;
+        }
+
         public Martix4f GetMVPMatrix(Vector3f pos)
         {
             return GetProjectionMartix() * GetViewMartix() * GetModelMartix(renderTick, pos);
@@ -230,6 +242,16 @@ namespace CPU_Soft_Rasterization
 
             }
 
+            ShadowMaping shadowMap = new ShadowMaping(this);
+
+           // Task shadowTask = Task.Factory.StartNew(() =>
+           // {
+                //ShadowMap
+            //    shadowMap.GenerateShadowMap();
+
+            //});
+          
+
             //Culling
             Culling culling = new Culling(this);
             var cullTriangles = culling.Cull();
@@ -241,17 +263,8 @@ namespace CPU_Soft_Rasterization
             sample.DoSample();
 
 
-            /*ShadowMaping shadowMap = new ShadowMaping(this);
-            shadowMap.GenerateShadowMap(true);
 
-            Task shadowTask = Task.Factory.StartNew(() =>
-            {
-                //ShadowMap
-
-
-            });
-            shadowTask.Wait();
-            */
+           // shadowTask.Wait();
             //FragmentShader
             for (int x = 0; x < width; x++)
             {
@@ -266,6 +279,7 @@ namespace CPU_Soft_Rasterization
             }
 
             //Rasterization
+           
             Rasterization rasterization = new Rasterization(this);
             rasterization.Render(bitmap);
 

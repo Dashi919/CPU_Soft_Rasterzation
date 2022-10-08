@@ -5,11 +5,11 @@ namespace CPU_Soft_Rasterization
 {
     public abstract class Object
     {
-        public Transform transform;
+        public Transform transform { get; set; }
 
-        public Triangle[] triangles;
+        public Triangle[] triangles { get; set; }
 
-        public Material material;
+        public Material material { get; set; }
 
 
         public abstract bool IsInsideObjcet(Vector3f pos);

@@ -133,5 +133,15 @@ namespace CPU_Soft_Rasterization.Math.Martix
                                 0, 0, scale.z, 0,
                                 0, 0, 0, 1);
         }
+
+
+
+        public static Martix4f OrthogonalMartix(float left, float right, float bottom, float top, float near, float far)
+        {
+
+            Martix4f translate = TranslateMat(new Vector3f(-(right + left) / 2, -(bottom + top) / 2, -(near + far) / 2));
+            Martix4f scale = ScaleMat(new Vector3f(2 / (right - left), 2 / (top - bottom), 2 / (near - far)));
+            return scale * translate;
+        }
     }
 }
