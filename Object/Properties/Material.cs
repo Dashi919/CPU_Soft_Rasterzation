@@ -23,9 +23,10 @@ namespace CPU_Soft_Rasterization
             switch (m_type)
             {
                 case MaterialType.Metal:
-                    diffuse = new Vector3f(0.9f);
-                    specular = new Vector3f(0.2f);
-                    roughness = 128f;
+                    ambient = new Vector3f(1.0f, 0.5f, 0.32f);
+                    diffuse = new Vector3f(1.0f, 0.5f, 0.31f);
+                    specular = new Vector3f(0.5f);
+                    roughness = 32f;
                     break;
                 case MaterialType.Mirror:
                     break;
@@ -39,10 +40,12 @@ namespace CPU_Soft_Rasterization
             }
         }
 
-        public Vector4f baseColor;
-        public Vector3f diffuse;
-        public Vector3f specular;
-        public float roughness;
+        public Vector3f baseColor { get; set; }
+        public Vector3f ambient { get; set; }
+
+        public Vector3f diffuse { get; set; }
+        public Vector3f specular { get; set; }
+        public float roughness { get; set; }
        
     }
 }

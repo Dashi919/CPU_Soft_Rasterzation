@@ -47,11 +47,11 @@ namespace CPU_Soft_Rasterization
                             if (zbuffer < scene.GetDepthBuffer(bufferx, buffery))
                             {
                                 Vector3f color = v[0].color * abc.x + v[1].color * abc.y + v[2].color * abc.z;
-                                Vector3f normal = v[0].normal * abc.x + v[1].normal * abc.y + v[2].normal * abc.z;
-                                Vector3f vertexPos = v[0].pos * abc.x + v[1].pos * abc.y + v[2].pos * abc.z;
+                                Vector3f normal = v[0].worldNormal * abc.x + v[1].worldNormal * abc.y + v[2].worldNormal * abc.z;
+                                Vector4f vertexPos = v[0].worldPos * abc.x + v[1].worldPos * abc.y + v[2].worldPos * abc.z;
                                 scene.SetDepthBuffer(bufferx, buffery, zbuffer);
                                 scene.SetColorBuffer(bufferx, buffery, color);
-                                scene.SetNormalBuffer(bufferx, buffery, normal);
+                                scene.SetNormalBuffer(bufferx, buffery, normal.normalize());
                                 scene.SetVertexBuffer(bufferx, buffery, vertexPos);
                                 scene.SetObjcetBuffer(bufferx, buffery, triangle.GetParentObject());
                             }

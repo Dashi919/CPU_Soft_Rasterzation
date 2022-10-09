@@ -9,23 +9,25 @@ namespace CPU_Soft_Rasterization
 {
     public class FrameBuffer
     {
-        public Vector3f colorBuffer, normalBuffer,vertexPos;
+        public Vector3f? colorBuffer, normalBuffer;
+        public Vector4f? vertexPos;
         public float depthBuffer;
 
-        public Object objectBuffer ;
+        public Object? objectBuffer ;
 
         public FrameBuffer()
         {
-            colorBuffer = new Vector3f(1f, 1f, 1f);
-            normalBuffer = new Vector3f(0, 0, 0);
+
             depthBuffer = 1000;
         }
 
 
         public void Clear()
         {
-            colorBuffer = new Vector3f(1f, 1f, 1f);
-            normalBuffer = new Vector3f(0, 0, 0);
+            colorBuffer = null;
+            normalBuffer = null;
+            objectBuffer = null;
+            vertexPos = null;
             depthBuffer = 1000;
         }
     }

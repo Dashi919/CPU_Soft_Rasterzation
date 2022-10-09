@@ -18,7 +18,12 @@ namespace CPU_Soft_Rasterization.Math.Vector
             return new Vector3f(x, y, z);
         }
 
-         public static Vector4f operator -(Vector4f a, Vector4f b)
+        public static Vector4f operator +(Vector4f a, Vector4f b)
+        {
+            return new Vector4f(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w);
+        }
+
+        public static Vector4f operator -(Vector4f a, Vector4f b)
         {
             return new Vector4f(a.x - b.x, a.y - b.y, a.z - b.z,a.w - b.w);
         }
@@ -26,6 +31,11 @@ namespace CPU_Soft_Rasterization.Math.Vector
         public static Vector4f operator /(Vector4f a, float b)
         {
             return new Vector4f(a.x / b, a.y / b, a.z / b, a.w / b);
+        }
+
+        public static Vector4f operator *(Vector4f a, float b)
+        {
+            return new Vector4f(a.x * b, a.y * b, a.z * b,a.w * b);
         }
         public float DotProduct(Vector4f b)
         {

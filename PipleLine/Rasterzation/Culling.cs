@@ -57,7 +57,7 @@ namespace CPU_Soft_Rasterization
             var objPos = obj.transform.position;
             var camPos = cam.position;
             var camToObjDir = (objPos - camPos).normalize();
-            if (cam.camLookAt.DotProduct(camToObjDir) < 0)
+            if (cam.camDir.DotProduct(camToObjDir) < 0)
                 return false;
             float distance = MathF.Abs((camPos - objPos).Distance());
             if (distance > cam.maxDepth)

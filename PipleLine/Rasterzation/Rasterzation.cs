@@ -7,7 +7,7 @@ namespace CPU_Soft_Rasterization
     public class Rasterization
     {
         private Scene scene;
-        ShadowMaping shadow;
+        ShadowMaping? shadow;
         
         public Rasterization(Scene scene)
         {
@@ -23,9 +23,9 @@ namespace CPU_Soft_Rasterization
                 for (int j = 0; j < bitmap.Height; j++)
                 {
                     int r, g, b;
-                    if (scene.isShowShadowMap)
+                    if (shadow!=null)
                     {
-                        r = g = b = (int) shadow.GetDepth(shadow.GetIndex(i,j)) /10 *255;
+                        r = g = b = (int) (MathF.Min(shadow.GetDepth(shadow.GetIndex(i,j)) *0.5f ,1) *255);
 
                     }
 

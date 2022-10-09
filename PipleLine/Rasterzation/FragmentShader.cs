@@ -15,7 +15,6 @@ namespace CPU_Soft_Rasterization
         {
             m_fragment = buffer;
             m_material = buffer.objectBuffer != null ? buffer.objectBuffer.material : new Material(Material.MaterialType.SkyBox);
-            m_pos = buffer.vertexPos;
         }
 
         public void SetLight(Light[] lights)
@@ -40,7 +39,12 @@ namespace CPU_Soft_Rasterization
 
             if (m_fragment.objectBuffer == null)
                 return finalColor;
+
+            if (m_fragment.objectBuffer.isLight)
+                return m_material.baseColor;
             //blinn-phong lights
+            m_pos = m_fragment.vertexPos.toVector3();
+
             for (int i = 0; i < m_lights.Length; i++)
             {
                 var radiance = m_lights[i].GetRadiance(m_pos);
@@ -48,14 +52,14 @@ namespace CPU_Soft_Rasterization
                 var viewDir = (m_camera.position - m_pos).normalize();
                 var halfVertor = (lightDir + viewDir).normalize();
                 Vector3f diffuse = radiance.CwiseProduct(m_material.diffuse) * MathF.Max(m_fragment.normalBuffer.DotProduct(lightDir),0);
-                Vector3f specular = radiance.CwiseProduct(m_material.specular) * MathF.Max(MathF.Pow(m_fragment.normalBuffer.DotProduct(halfVertor), m_material.roughness),0);
-                finalColor += specular + diffuse;
+                Vector3f specular = radiance.CwiseProduct(m_material.specular) * MathF.Pow(MathF.Max(m_fragment.normalBuffer.DotProduct(halfVertor),0),m_material.roughness);
+                finalColor +=  diffuse + specular;
             }
 
             //shadow
             if (m_shadowmap != null && m_shadowmap.IsGenetated())
             {
-                finalColor *= m_shadowmap.GetVisability(m_pos,true);
+                finalColor *= m_shadowmap.GetVisability(m_pos,false);
             }
 
             return baseColor.CwiseProduct(finalColor.Clamp(Vector3f.Zero(),Vector3f.Identity()));

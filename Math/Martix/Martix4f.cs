@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Numerics;
 using CPU_Soft_Rasterization.Math.Vector;
 
 namespace CPU_Soft_Rasterization.Math.Martix
@@ -101,22 +101,22 @@ namespace CPU_Soft_Rasterization.Math.Martix
                                 0, 0, 0, 1);
         }
 
-        public static Martix4f RotateMat(float angle, Vector3f axis)
+        public static Martix4f RotateMat(Vector3f rotation)
         {
-            float distance = axis.Distance();
 
-            float xangle = angle * axis.x / distance * MathF.PI / 180;
+
+            float xangle = rotation.x * MathF.PI / 180;
             Martix4f xmat = new Martix4f(1, 0, 0, 0,
                                          0, -MathF.Cos(xangle), MathF.Sin(xangle), 0,
                                          0, MathF.Sin(xangle), MathF.Cos(xangle), 0,
                                          0, 0, 0, 1);
-            float yangle = angle * axis.y / distance * MathF.PI / 180;
+            float yangle = rotation.y* MathF.PI / 180;
 
             Martix4f ymat = new Martix4f(MathF.Cos(yangle), 0, MathF.Sin(yangle), 0,
                                          0, 1, 0, 0,
                                          MathF.Sin(yangle), 0, -MathF.Cos(yangle), 0,
                                          0, 0, 0, 1);
-            float zangle = angle * axis.z / distance * MathF.PI / 180;
+            float zangle = rotation.z * MathF.PI / 180;
 
             Martix4f zmat = new Martix4f(-MathF.Cos(zangle), MathF.Sin(zangle), 0, 0,
                                           MathF.Sin(zangle), MathF.Cos(zangle), 0, 0,
@@ -136,11 +136,11 @@ namespace CPU_Soft_Rasterization.Math.Martix
 
 
 
-        public static Martix4f OrthogonalMartix(float left, float right, float bottom, float top, float near, float far)
+        public static Martix4f OrthogonalMartix(float left, float right, float bottom, float top, float znear, float zfar)
         {
 
-            Martix4f translate = TranslateMat(new Vector3f(-(right + left) / 2, -(bottom + top) / 2, -(near + far) / 2));
-            Martix4f scale = ScaleMat(new Vector3f(2 / (right - left), 2 / (top - bottom), 2 / (near - far)));
+            Martix4f translate = TranslateMat(new Vector3f(-(right + left) / 2, -(bottom + top) / 2, -(znear + zfar) / 2));
+            Martix4f scale = ScaleMat(new Vector3f(2 / (right - left), 2 / (top - bottom), 2 / (znear - zfar)));
             return scale * translate;
         }
     }

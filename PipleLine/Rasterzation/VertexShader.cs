@@ -7,16 +7,14 @@ namespace CPU_Soft_Rasterization
     public class VertexShader
     {
         Martix4f MVP;
+        Martix4f ModelMatrix;
         Vertex m_vertex;
         float width, height;
         public VertexShader(Vertex vertex)
         {
             m_vertex = vertex;
         }
-        public Vector3f GetVertexpos()
-        {
-            return m_vertex.pos;
-        }
+  
 
         public void SetSceneHW(float w,float h)
         {
@@ -28,10 +26,18 @@ namespace CPU_Soft_Rasterization
         {
             MVP = matrix;
         }
+
+        public void SetModelMatrix(Martix4f matrix)
+        {
+            ModelMatrix = matrix;
+        }
         public void Shade()
         {
-            m_vertex.screenPos = MVP * m_vertex.pos.PointToVector4();
+            m_vertex.worldPos = ModelMatrix * m_vertex.localPos.PointToVector4();
+            m_vertex.worldNormal = (ModelMatrix * m_vertex.normal.DirToVector4()).toVector3();
 
+            m_vertex.screenPos = MVP * m_vertex.localPos.PointToVector4();
+            //局部坐标转换为世界坐标
             //齐次除法
             m_vertex.screenPos /= m_vertex.screenPos.w;
             //视口变换

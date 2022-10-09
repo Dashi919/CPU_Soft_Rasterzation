@@ -15,11 +15,11 @@ namespace CPU_Soft_Rasterization
     {
         public float renderTick
         {
-           get { return m_renderTick; }
-           private set { m_renderTick = value; }
+            get { return m_renderTick; }
+            private set { m_renderTick = value; }
         }
         private float m_renderTick = 0;
-       
+
         public enum RenderType
         {
             Rasterization,
@@ -35,7 +35,6 @@ namespace CPU_Soft_Rasterization
         public float fov, znear, zfar, aspectRatio;
         private BVHTree bvhTree;
         private RenderType m_renderType;
-        public bool isShowShadowMap = false;
 
         public Scene(int width, int height, float fov, float znear, float zfar)
         {
@@ -62,7 +61,7 @@ namespace CPU_Soft_Rasterization
 
         public void Tick(Bitmap bitmap)
         {
-           
+
             switch (m_renderType)
             {
                 case RenderType.Rasterization:
@@ -82,6 +81,9 @@ namespace CPU_Soft_Rasterization
         public void AddLight(Light light)
         {
             lights.Add(light);
+            Cube cube = new Cube(light.poistion, new Vector3f(1));
+            cube.isLight = true;
+            AddObject(cube);
         }
 
         public void AddCam(Camera cam)
@@ -141,22 +143,16 @@ namespace CPU_Soft_Rasterization
             framebuffers[GetScreenIndex(x, y)].objectBuffer = obj;
         }
 
-        public void SetVertexBuffer(int x, int y, Vector3f vPos)
+        public void SetVertexBuffer(int x, int y, Vector4f vPos)
         {
             framebuffers[GetScreenIndex(x, y)].vertexPos = vPos;
         }
 
         #region Rasterzation
 
-        public Martix4f GetModelMartix(float angle,Vector3f pos)
+        public Martix4f GetModelMartix(Object obj)
         {
-            angle *= 5 * MathF.PI / 180f;
-            Martix4f rotation = new Martix4f(MathF.Cos(angle), 0, MathF.Sin(angle), 0,
-                                         0, 1, 0, 0,
-                                         MathF.Sin(angle), 0, -MathF.Cos(angle), 0,
-                                         0, 0, 0, 1);
-            Martix4f translate = Martix4f.TranslateMat(pos);
-            return translate * rotation;
+            return obj.modelMatrix;
         }
 
         public Martix4f GetViewMartix()
@@ -174,51 +170,36 @@ namespace CPU_Soft_Rasterization
         }
 
 
-        public void ShowOrHideShadowMap()
-        {
-            isShowShadowMap = !isShowShadowMap;
-        }
 
-        public Martix4f GetMVPMatrix(Vector3f pos)
+
+        public Martix4f GetMVPMatrix(Object obj)
         {
-            return GetProjectionMartix() * GetViewMartix() * GetModelMartix(renderTick, pos);
+            return GetProjectionMartix() * GetViewMartix() * GetModelMartix(obj);
         }
 
 
         public Vector3f GetCamForward()
         {
-            Vector3f camForward = camera.camLookAt;
-            return camForward;
+            return camera.camDir;
         }
 
         public Vector3f GetCamRight()
         {
-            Vector3f camRight = camera.camLookAt.crossProduct(camera.upDir).normalize();
+            Vector3f camRight = camera.camDir.crossProduct(camera.upDir).normalize();
             return camRight;
         }
 
         public void MoveCam(Vector3f distance)
         {
-           camera.position += distance;
+            camera.position += distance;
         }
 
         public void RotateCam(Vector3f rotation)
         {
-/*
-            //水平
-            float horizonAngle = rotation.x;
+            
+            //camera.camDir = Martix3f.RotateMat(rotation) * camera.camDir;
 
-            camera.camLookAt =  new Martix3f(MathF.Cos(horizonAngle), 0, MathF.Sin(horizonAngle),
-                                         0, 1, 0,
-                                         MathF.Sin(horizonAngle), 0, -MathF.Cos(horizonAngle)) * camera.camLookAt;
 
-            //垂直
-            float veticalAngle = rotation.y;
-            camera.upDir = new Martix3f(1, 0, 0,
-                                        0, -MathF.Cos(veticalAngle), MathF.Sin(veticalAngle),
-                                      0, MathF.Sin(veticalAngle), MathF.Cos(veticalAngle)) * camera.upDir;
-
-            */
         }
 
         public void Rasterization(Bitmap bitmap)
@@ -232,8 +213,9 @@ namespace CPU_Soft_Rasterization
                     {
                         {
                             VertexShader vertexShader = new VertexShader(sceneObjs[i].triangles[j].vertices[l]);
-                            vertexShader.SetMVP(GetMVPMatrix(sceneObjs[i].transform.position));
-                            vertexShader.SetSceneHW(width, height);                            
+                            vertexShader.SetModelMatrix(GetModelMartix(sceneObjs[i]));
+                            vertexShader.SetMVP(GetMVPMatrix(sceneObjs[i]));
+                            vertexShader.SetSceneHW(width, height);
                             vertexShader.Shade();
 
                         }
@@ -244,13 +226,13 @@ namespace CPU_Soft_Rasterization
 
             ShadowMaping shadowMap = new ShadowMaping(this);
 
-           // Task shadowTask = Task.Factory.StartNew(() =>
-           // {
-                //ShadowMap
-            //    shadowMap.GenerateShadowMap();
+            Task shadowTask = Task.Factory.StartNew(() =>
+             {
+                 //ShadowMap
+                 shadowMap.GenerateShadowMap();
 
-            //});
-          
+             });
+
 
             //Culling
             Culling culling = new Culling(this);
@@ -264,14 +246,16 @@ namespace CPU_Soft_Rasterization
 
 
 
-           // shadowTask.Wait();
+            // shadowTask.Wait();
             //FragmentShader
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
                     FragmentShader fragmentShader = new FragmentShader(framebuffers[GetScreenIndex(x, y)]);
-                    //fragmentShader.SetShadow(shadowMap);
+                    
+                    fragmentShader.SetShadow(shadowMap);
+                    
                     fragmentShader.SetLight(lights.ToArray());
                     fragmentShader.SetCamera(camera);
                     SetColorBuffer(x, y, fragmentShader.Shade());
@@ -279,12 +263,14 @@ namespace CPU_Soft_Rasterization
             }
 
             //Rasterization
-           
+
             Rasterization rasterization = new Rasterization(this);
+            if (isShowShadowMap)
+                rasterization.SetShadowMap(shadowMap);
             rasterization.Render(bitmap);
 
 
-            
+
         }
         #endregion
 
@@ -304,5 +290,16 @@ namespace CPU_Soft_Rasterization
         #endregion
 
 
+
+
+        #region For Debug 
+        public bool isShowShadowMap = false;
+
+        public void ShowOrHideShadowMap()
+        {
+            isShowShadowMap = !isShowShadowMap;
+        }
+
+        #endregion
     }
 }

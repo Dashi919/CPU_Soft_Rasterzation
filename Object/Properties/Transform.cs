@@ -6,9 +6,9 @@ namespace CPU_Soft_Rasterization
 
     public class Transform
     {
-        public Vector3f position;
-        public Vector3f rotation;
-        public Vector3f scale;
+        public Vector3f position { get; set; }
+        public Vector3f rotation { get; set; }
+        public Vector3f scale { get; set; }
 
         public Transform(Vector3f position, Vector3f rotation, Vector3f scale)
         {

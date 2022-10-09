@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Windows;
 using CPU_Soft_Rasterization.Math.Martix;
 using CPU_Soft_Rasterization.Math.Vector;
@@ -12,10 +13,9 @@ namespace CPU_Soft_Rasterization
         private Martix4f LightVPMartix;
         private ShadowMap map;
         private bool m_IsGenerated = false;
-        private Vector3f lightUp, lightFocus, lightRight;
         private Vector2f[] randomSamplers;
-
-
+        private float halfWidth, halfHeight;
+        private Martix4f viewPortMartix;
         private const int sample_nums = 16;
         private const int rings_nums = 10;
         private const float light_world_size = 0.05f;
@@ -28,8 +28,6 @@ namespace CPU_Soft_Rasterization
         {
             m_scene = scene;
             mainLight = scene.lights[0];
-            lightUp = new Vector3f(0, 1, 0);
-            lightFocus = new Vector3f(0, 0, 0);
             LightVPMartix = CalculateLightMV();
         }
         public struct ShadowMap
@@ -40,46 +38,64 @@ namespace CPU_Soft_Rasterization
 
         private Martix4f CalculateLightMV()
         {
-            lightRight = lightFocus.crossProduct(lightUp);
+            
             Martix4f LightVP;
             Martix4f translateMartix = Martix4f.TranslateMat(-mainLight.poistion);
-            Martix4f rotateMartix = new Martix4f(lightRight, lightUp, -lightFocus);
-            Martix4f orthoMartix = Martix4f.OrthogonalMartix(-100f,100f,-100f,100f,0.1f,1000f);
+            Martix4f rotateMartix = new Martix4f(mainLight.lightRight, mainLight.lightUp, -mainLight.lightFocus);
+            Martix4f orthoMartix = Martix4f.OrthogonalMartix(-10, 10, -10, 10, 0.1f, 1000f);
+
             LightVP = orthoMartix * translateMartix * rotateMartix;
             return LightVP;
         }
         public void GenerateShadowMap()
         {
+            m_IsGenerated = false;
             map = new ShadowMap();
             map.width = m_scene.width;
             map.height = m_scene.height;
             map.depths = new float[map.width * map.height];
+            halfWidth = map.width * 0.5f;
+            halfHeight = map.height * 0.5f;
+            viewPortMartix = new Martix4f(halfWidth, 0, 0, 0,
+                                                   0, halfHeight, 0, 0,
+                                                   0, 0, 1, 0,
+                                                   0, 0, 0, 1);
+
             for (int i = 0; i < m_scene.sceneObjs.Count; i++)
             {
+                if (m_scene.sceneObjs[i].isLight)
+                    continue;
                 for (int j = 0; j < m_scene.sceneObjs[i].triangles.Length; j++)
                 {
                     var triangle = m_scene.sceneObjs[i].triangles[j];
-                    var pos = m_scene.sceneObjs[i].transform.position;
-                    var boundingBox = CreateBoudingBox(triangle,pos);
+                    Vector4f pos1 = viewPortMartix * WolrdToLightMat() * triangle.vertices[0].worldPos;
+                    Vector4f pos2 = viewPortMartix * WolrdToLightMat() * triangle.vertices[1].worldPos;
+                    Vector4f pos3 = viewPortMartix * WolrdToLightMat() * triangle.vertices[2].worldPos;
+                    Vector4f[] vetices = new Vector4f[] { pos1, pos2, pos3 };
+                    var boundingBox = CreateBoudingBox(vetices);
+
+
                     for (int x = (int)boundingBox.x; x < (int)boundingBox.y; x++)
                     {
-                        for (int y = (int)boundingBox.z; y < (int)boundingBox.z; y++)
+                        for (int y = (int)boundingBox.z; y < (int)boundingBox.w; y++)
                         {
                             var point = new Vector3f((float)(x + 0.5), (float)(y + 0.5), 0);
-                            if (triangle.IsInsideTriangle(point))
+
+
+                            if (IsInsideTriangle(point, vetices))
                             {
-                                Vertex[] v = triangle.vertices;
-                                Vector3f abc = triangle.ComputeBarycentricCoordinateInViewPort(point);
-                                float depth = v[0].screenPos.z * abc.x + v[1].screenPos.z * abc.y + v[2].screenPos.z * abc.z;
-                                float w = v[0].screenPos.w * abc.x + v[1].screenPos.w * abc.y + v[2].screenPos.w * abc.z;
-                                depth *= w;
-                                if (map.depths[GetIndex(x, y)] == 0f || map.depths[GetIndex(x, y)] > depth)
+
+                                Vector3f abc = ComputeBarycentricCoordinateInViewPort(point, vetices);
+                                float depth = vetices[0].z * abc.x + vetices[1].z * abc.y + vetices[2].z * abc.z;
+                                
+                                if (map.depths[GetIndex2(x, y)] == 0.0f || depth < map.depths[GetIndex2(x, y)])
                                 {
-                                    map.depths[GetIndex(x, y)] = depth;
+
+                                    map.depths[GetIndex2(x, y)] = depth;
                                 }
 
                             }
-                            
+
                         }
                     }
                 }
@@ -87,6 +103,25 @@ namespace CPU_Soft_Rasterization
             }
             m_IsGenerated = true;
 
+        }
+
+        public bool IsInsideTriangle(Vector3f point, Vector4f[] vertices)
+        {
+            float c1 = (point.x - vertices[0].x) * (vertices[0].y - vertices[1].y)
+                - (vertices[0].x - vertices[1].x) * (point.y - vertices[0].y);
+            float c2 = (point.x - vertices[1].x) * (vertices[1].y - vertices[2].y)
+                - (vertices[1].x - vertices[2].x) * (point.y - vertices[1].y);
+            float c3 = (point.x - vertices[2].x) * (vertices[2].y - vertices[0].y)
+                - (vertices[2].x - vertices[0].x) * (point.y - vertices[2].y);
+            return (c1 >= 0 && c2 >= 0 && c3 >= 0) || (c1 <= 0 && c2 <= 0 && c3 <= 0);
+        }
+
+        public Vector3f ComputeBarycentricCoordinateInViewPort(Vector3f point, Vector4f[] vertices)
+        {
+            float c1 = (point.x * (vertices[1].y - vertices[2].y) + (vertices[2].x - vertices[1].x) * point.y + vertices[1].x * vertices[2].y - vertices[2].x * vertices[1].y) / (vertices[0].x * (vertices[1].y - vertices[2].y) + (vertices[2].x - vertices[1].x) * vertices[0].y + vertices[1].x * vertices[2].y - vertices[2].x * vertices[1].y);
+            float c2 = (point.x * (vertices[2].y - vertices[0].y) + (vertices[0].x - vertices[2].x) * point.y + vertices[2].x * vertices[0].y - vertices[0].x * vertices[2].y) / (vertices[1].x * (vertices[2].y - vertices[0].y) + (vertices[0].x - vertices[2].x) * vertices[1].y + vertices[2].x * vertices[0].y - vertices[0].x * vertices[2].y);
+            float c3 = (point.x * (vertices[0].y - vertices[1].y) + (vertices[1].x - vertices[0].x) * point.y + vertices[0].x * vertices[1].y - vertices[1].x * vertices[0].y) / (vertices[2].x * (vertices[0].y - vertices[1].y) + (vertices[1].x - vertices[0].x) * vertices[2].y + vertices[0].x * vertices[1].y - vertices[1].x * vertices[0].y);
+            return new Vector3f(c1, c2, c3);
         }
 
         public bool IsGenetated()
@@ -194,21 +229,35 @@ namespace CPU_Soft_Rasterization
             float sn = dt % MathF.PI;
             return MathF.Truncate(MathF.Sin((sn) * c));
         }
+
         public float GetVisability(Vector3f pos, bool isSoftShadow)
         {
-            Vector4f coords = WolrdToLightMat() * pos.PointToVector4();
-            if (coords.x < 0 || coords.y < 0 || coords.x > 1 || coords.y > 1)
+            Vector4f coords = viewPortMartix * WolrdToLightMat() * pos.PointToVector4();
+            if (coords.x < -halfWidth || coords.y < -halfHeight || coords.x > halfWidth || coords.y > halfHeight)
             {
+
                 return 0;
             }
             else
             {
-                if (isSoftShadow)
-                {
-                    return SoftShadows(coords);
+                float depth = GetDepth(GetIndex2(coords.x, coords.y));
 
+                if (coords.z - 0.001 < depth)
+                {
+                    if (isSoftShadow)
+                    {
+                        return SoftShadows(coords);
+
+                    }
+                    else
+                    {
+                        return 1;
+                    }
                 }
-                return 1;
+                else
+                {
+                    return 0f;
+                }
             }
         }
 
@@ -224,38 +273,32 @@ namespace CPU_Soft_Rasterization
 
         private int GetIndex2(float x, float y)
         {
-            int screenX =(int)(x * map.width);
-            int screenY = (int)(y * map.height);
+            int screenX = (int)(x + halfWidth);
+            int screenY = (int)(y + halfHeight);
             return GetIndex(screenX, screenY);
         }
-        
 
-        public Vector4f CreateBoudingBox(Triangle triangle,Vector3f objPos)
+
+        public Vector4f CreateBoudingBox(Vector4f[] vertices)
         {
             float minX, minY, maxX, maxY;
-            var LightMVP = WolrdToLightMat() * m_scene.GetModelMartix(m_scene.renderTick,objPos);
-            Vector3f pos1 = (LightMVP * triangle.vertices[0].pos.PointToVector4()).toVector3();
-            Vector3f pos2 = (LightMVP * triangle.vertices[1].pos.PointToVector4()).toVector3();
-            Vector3f pos3 = (LightMVP * triangle.vertices[2].pos.PointToVector4()).toVector3();
+            minX = vertices[0].x < vertices[1].x ? vertices[0].x : vertices[1].x;
+            minX = minX < vertices[2].x ? minX : vertices[2].x;
+            minX = minX < -halfWidth ? halfWidth : minX;
+
+            maxX = vertices[0].x > vertices[1].x ? vertices[0].x : vertices[1].x;
+            maxX = maxX > vertices[2].x ? maxX : vertices[2].x;
+            maxX = maxX > halfWidth ? halfWidth : maxX;
 
 
-            minX = pos1.x < pos2.x ? pos1.x : pos2.x;
-            minX = minX < pos3.x ? minX : pos3.x;
-            minX = minX < 0 ? 0 : minX;
-
-            maxX = pos1.x > pos2.x ? pos1.x : pos2.x;
-            maxX = maxX > pos3.x ? maxX : pos3.x;
-            maxX = maxX > map.width ? map.width : maxX;
+            minY = vertices[0].y < vertices[1].y ? vertices[0].y : vertices[1].y;
+            minY = minY < vertices[2].y ? minY : vertices[2].y;
+            minY = minY < -halfHeight ? -halfHeight : minY;
 
 
-            minY = pos1.y < pos2.y ? pos1.y : pos2.y;
-            minY = minY < pos3.y ? minY : pos3.y;
-            minY = minY < 0 ? 0 : minY;
-
-
-            maxY = pos1.y > pos2.y ? pos1.y : pos2.y;
-            maxY = maxY > pos3.y ? maxY : pos3.y;
-            maxY = maxY > map.height ? map.height : maxY;
+            maxY = vertices[0].y > vertices[1].y ? vertices[0].y : vertices[1].y;
+            maxY = maxY > vertices[2].y ? maxY : vertices[2].y;
+            maxY = maxY > halfHeight ? halfHeight : maxY;
 
 
             return new Vector4f(minX, maxX, minY, maxY);

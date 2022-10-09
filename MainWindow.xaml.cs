@@ -43,22 +43,22 @@ namespace CPU_Soft_Rasterization
             sceneObjectList = new BindingList<SceneObject>();
             hierachy.ItemsSource = sceneObjectList;
 
-            camMoveSpeed = 5;
-            camRotateSpeed = 0.1f;
+            camMoveSpeed = 2;
+            camRotateSpeed = 1f;
             mainScene = new Scene((int)sceneImage.Width, (int)sceneImage.Height, 90.0f, 0.1f, 1000.0f);
-            Camera mainCam = new Camera(new Vector3f(0, 0, -5), new Vector3f(0, 0, 1), new Vector3f(0, 1, 0));
+            Camera mainCam = new Camera(new Vector3f(0, 3, -7), new Vector3f(0, 1, 1), new Vector3f(1, 0, 0));
             mainScene.AddCam(mainCam);
-            Light mainLight = new Light(new Vector3f(10), new Vector3f(500));
+            Light mainLight = new Light(new Vector3f(0,5,0), new Vector3f(0, -1, 0), 1000);
             mainScene.AddLight(mainLight);
-            Light secLight = new Light(new Vector3f(-10), new Vector3f(500));
-            mainScene.AddLight(secLight);
-            Cube cube = new Cube(new Vector3f(-1, 0, 2), new Vector3f(0, 0, 1f));
+
+            Cube cube = new Cube(new Vector3f(-1, 3, -1), new Vector3f(0, 0, 1f));
             Add_Scene_Objcet(cube, "Cube");
-            Cube cube1 = new Cube(new Vector3f(-1, -2, 2), new Vector3f(1, 0, 1f));
-
-
+            Cube cube1 = new Cube(new Vector3f(0, 2, 0), new Vector3f(0, 1, 1f));
             Add_Scene_Objcet(cube1, "Cube1");
-
+            Cube cube2 = new Cube(new Vector3f(1, 1, 1), new Vector3f(1, 0, 1f));
+            Add_Scene_Objcet(cube2, "Cube2");
+            Cube cube3 = new Cube(new Vector3f(0, 0, 2),new Vector3f(0),new Vector3f(10,0.1f,10));
+            Add_Scene_Objcet(cube3, "Cube3");
 
 
 
@@ -86,10 +86,6 @@ namespace CPU_Soft_Rasterization
 
         }
 
-        private bool CheckInput()
-        {
-            return false;
-        }
 
         BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
@@ -181,9 +177,9 @@ namespace CPU_Soft_Rasterization
             var point = e.GetPosition(this);
             float x = (float)point.X;
             float y = (float)point.Y;
-            if(oldMouseX!= x && oldMouseY != y)
+            if(oldMouseX!= x || oldMouseY != y)
             {
-                Vector3f rotation = new Vector3f(x - oldMouseX, y - oldMouseY,0) * camRotateSpeed;
+                Vector3f rotation = new Vector3f(0, 0, 0) * camRotateSpeed;
                 cameraController = mainScene.RotateCam;
                 cameraController(rotation);
                 oldMouseX = x;

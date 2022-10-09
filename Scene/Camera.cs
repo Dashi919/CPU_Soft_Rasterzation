@@ -7,28 +7,28 @@ namespace CPU_Soft_Rasterization
     public class Camera
     {
         public Vector3f position;
-        public Vector3f camLookAt;
+        public Vector3f camDir;
         public Vector3f upDir;
         public Vector3f rightDir;
 
         public float maxDepth = 1000f;
 
-        public Camera(Vector3f pos, Vector3f lookAt, Vector3f upDir)
+        public Camera(Vector3f pos, Vector3f camDir, Vector3f rightDir)
         {
             position = pos;
-            this.camLookAt = lookAt.normalize();
-            this.upDir = upDir.normalize();
+            this.camDir = camDir.normalize();
+            this.rightDir = rightDir.normalize();
 
         }
 
         public Martix4f GetViewMatrix()
         {
-            rightDir = camLookAt.crossProduct(upDir).normalize();
+            upDir = camDir.crossProduct(rightDir).normalize();
             Martix4f TView = new Martix4f( 1, 0, 0, -position.x,
                                            0, 1, 0, -position.y,
                                            0, 0, 1, -position.z,
                                            0, 0, 0, 1);
-            Martix4f RView = new Martix4f(rightDir, upDir, -camLookAt);
+            Martix4f RView = new Martix4f(rightDir, upDir, -camDir);
             return TView * RView;
          } 
         
