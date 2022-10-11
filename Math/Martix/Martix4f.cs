@@ -107,18 +107,18 @@ namespace CPU_Soft_Rasterization.Math.Martix
 
             float xangle = rotation.x * MathF.PI / 180;
             Martix4f xmat = new Martix4f(1, 0, 0, 0,
-                                         0, -MathF.Cos(xangle), MathF.Sin(xangle), 0,
+                                         0, MathF.Cos(xangle), -MathF.Sin(xangle), 0,
                                          0, MathF.Sin(xangle), MathF.Cos(xangle), 0,
                                          0, 0, 0, 1);
             float yangle = rotation.y* MathF.PI / 180;
 
             Martix4f ymat = new Martix4f(MathF.Cos(yangle), 0, MathF.Sin(yangle), 0,
                                          0, 1, 0, 0,
-                                         MathF.Sin(yangle), 0, -MathF.Cos(yangle), 0,
+                                         -MathF.Sin(yangle), 0, MathF.Cos(yangle), 0,
                                          0, 0, 0, 1);
             float zangle = rotation.z * MathF.PI / 180;
 
-            Martix4f zmat = new Martix4f(-MathF.Cos(zangle), MathF.Sin(zangle), 0, 0,
+            Martix4f zmat = new Martix4f( MathF.Cos(zangle), -MathF.Sin(zangle), 0, 0,
                                           MathF.Sin(zangle), MathF.Cos(zangle), 0, 0,
                                          0, 0, 1, 0,
                                          0, 0, 0, 1);

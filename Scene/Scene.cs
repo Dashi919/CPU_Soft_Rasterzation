@@ -35,6 +35,7 @@ namespace CPU_Soft_Rasterization
         public float fov, znear, zfar, aspectRatio;
         private BVHTree bvhTree;
         private RenderType m_renderType;
+        private ShadowMaping shadow;
 
         public Scene(int width, int height, float fov, float znear, float zfar)
         {
@@ -81,7 +82,7 @@ namespace CPU_Soft_Rasterization
         public void AddLight(Light light)
         {
             lights.Add(light);
-            Cube cube = new Cube(light.poistion, new Vector3f(1));
+            Cube cube = new Cube(light.position, new Vector3f(1));
             cube.isLight = true;
             AddObject(cube);
         }
@@ -191,7 +192,7 @@ namespace CPU_Soft_Rasterization
 
         public void MoveCam(Vector3f distance)
         {
-            camera.position += distance;
+            camera.transform.position += distance;
         }
 
         public void RotateCam(Vector3f rotation)
@@ -217,19 +218,18 @@ namespace CPU_Soft_Rasterization
                             vertexShader.SetMVP(GetMVPMatrix(sceneObjs[i]));
                             vertexShader.SetSceneHW(width, height);
                             vertexShader.Shade();
-
                         }
                     }
                 }
 
             }
 
-            ShadowMaping shadowMap = new ShadowMaping(this);
-
+            //ShadowMap
+            if(shadow == null)
+                shadow = new ShadowMaping(this);
             Task shadowTask = Task.Factory.StartNew(() =>
              {
-                 //ShadowMap
-                 shadowMap.GenerateShadowMap();
+                 shadow.GenerateShadowMap();
 
              });
 
@@ -238,7 +238,6 @@ namespace CPU_Soft_Rasterization
             Culling culling = new Culling(this);
             var cullTriangles = culling.Cull();
 
-
             //Sampling
             Sample sample = new Sample(this);
             sample.SetSampleTriangle(cullTriangles);
@@ -246,7 +245,7 @@ namespace CPU_Soft_Rasterization
 
 
 
-            // shadowTask.Wait();
+             shadowTask.Wait();
             //FragmentShader
             for (int x = 0; x < width; x++)
             {
@@ -254,8 +253,15 @@ namespace CPU_Soft_Rasterization
                 {
                     FragmentShader fragmentShader = new FragmentShader(framebuffers[GetScreenIndex(x, y)]);
                     
-                    fragmentShader.SetShadow(shadowMap);
-                    
+                    fragmentShader.SetShadow(shadow);
+                    if (!isShowShadowMap)
+                    {
+                        fragmentShader.IsShowShadow = false;
+                    }
+                    else
+                    {
+                        fragmentShader.IsShowShadow = true;
+                    }
                     fragmentShader.SetLight(lights.ToArray());
                     fragmentShader.SetCamera(camera);
                     SetColorBuffer(x, y, fragmentShader.Shade());
@@ -265,12 +271,7 @@ namespace CPU_Soft_Rasterization
             //Rasterization
 
             Rasterization rasterization = new Rasterization(this);
-            if (isShowShadowMap)
-                rasterization.SetShadowMap(shadowMap);
             rasterization.Render(bitmap);
-
-
-
         }
         #endregion
 
@@ -278,7 +279,8 @@ namespace CPU_Soft_Rasterization
 
         public void RayTracing()
         {
-
+            bvhTree = new BVHTree(this);
+            bvhTree.BuildBVH();
         }
 
 

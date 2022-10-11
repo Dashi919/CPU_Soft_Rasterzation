@@ -5,9 +5,10 @@ namespace CPU_Soft_Rasterization
 {
     public class BVHTree
     {
-
+        private Scene m_scene;
         public BVHTree(Scene scene)
-        { 
+        {
+            m_scene = scene;
         }
 
         public void BuildBVH()

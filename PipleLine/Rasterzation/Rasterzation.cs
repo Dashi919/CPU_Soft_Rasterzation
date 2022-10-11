@@ -7,12 +7,10 @@ namespace CPU_Soft_Rasterization
     public class Rasterization
     {
         private Scene scene;
-        ShadowMaping? shadow;
-        
+ 
         public Rasterization(Scene scene)
         {
             this.scene = scene;
-          
         }
 
         public void Render(Bitmap bitmap)
@@ -23,29 +21,17 @@ namespace CPU_Soft_Rasterization
                 for (int j = 0; j < bitmap.Height; j++)
                 {
                     int r, g, b;
-                    if (shadow!=null)
-                    {
-                        r = g = b = (int) (MathF.Min(shadow.GetDepth(shadow.GetIndex(i,j)) *0.5f ,1) *255);
 
-                    }
-
-                    else
-                    {
-
-                        var frameBuffer = scene.framebuffers[scene.GetScreenIndex(i, j)];
-                        r = (int)(frameBuffer.colorBuffer.x * 255);
-                        g = (int)(frameBuffer.colorBuffer.y * 255);
-                        b = (int)(frameBuffer.colorBuffer.z * 255);
-                        frameBuffer.Clear();
-                    }
+                    var frameBuffer = scene.framebuffers[scene.GetScreenIndex(i, j)];
+                    r = (int)(frameBuffer.colorBuffer.x * 255);
+                    g = (int)(frameBuffer.colorBuffer.y * 255);
+                    b = (int)(frameBuffer.colorBuffer.z * 255);
+                    frameBuffer.Clear();
                     Color color = Color.FromArgb(1, r, g, b);
                     bitmap.SetPixel(i, j, color);
                 }
             }
         }
 
-        public void SetShadowMap(ShadowMaping shadowMaping) { 
-            shadow = shadowMaping;
-        }
     }
 }

@@ -1,35 +1,40 @@
 ﻿using System;
 using CPU_Soft_Rasterization.Math.Martix;
 using CPU_Soft_Rasterization.Math.Vector;
-
+using System.Windows;
 namespace CPU_Soft_Rasterization
 {
     public class Camera
     {
-        public Vector3f position;
-        public Vector3f camDir;
-        public Vector3f upDir;
+        public Transform transform;
+
+        public Vector3f camDir { get; set; }
+        public Vector3f upDir { get; set; }
+        
         public Vector3f rightDir;
 
         public float maxDepth = 1000f;
 
-        public Camera(Vector3f pos, Vector3f camDir, Vector3f rightDir)
+        public Camera(Vector3f pos, Vector3f camDir, Vector3f upDir)
         {
-            position = pos;
-            this.camDir = camDir.normalize();
-            this.rightDir = rightDir.normalize();
+            transform = new Transform(pos);
+            this.camDir =  camDir;
+            this.upDir = upDir;
+            rightDir = camDir.crossProduct(upDir);
 
         }
 
         public Martix4f GetViewMatrix()
         {
-            upDir = camDir.crossProduct(rightDir).normalize();
-            Martix4f TView = new Martix4f( 1, 0, 0, -position.x,
-                                           0, 1, 0, -position.y,
-                                           0, 0, 1, -position.z,
+            Martix4f modelView = Martix4f.RotateMat(new Vector3f(0,0, 0));
+
+            Martix4f TView = new Martix4f( 1, 0, 0, -transform.position.x,
+                                           0, 1, 0, -transform.position.y,
+                                           0, 0, 1, -transform.position.z,
                                            0, 0, 0, 1);
-            Martix4f RView = new Martix4f(rightDir, upDir, -camDir);
-            return TView * RView;
+            Martix4f RView = new Martix4f(rightDir, upDir, camDir);
+
+            return   RView * TView ;
          } 
         
     }

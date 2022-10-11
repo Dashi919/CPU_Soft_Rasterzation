@@ -30,7 +30,6 @@ namespace CPU_Soft_Rasterization
     {
         Thread renderTickThread;
         Scene mainScene;
-        bool IsChanged;
         float oldMouseX, oldMouseY, camMoveSpeed, camRotateSpeed;
         BindingList<SceneObject> sceneObjectList;
         delegate void MoveCamera(Vector3f distance);
@@ -46,24 +45,25 @@ namespace CPU_Soft_Rasterization
             camMoveSpeed = 2;
             camRotateSpeed = 1f;
             mainScene = new Scene((int)sceneImage.Width, (int)sceneImage.Height, 90.0f, 0.1f, 1000.0f);
-            Camera mainCam = new Camera(new Vector3f(0, 3, -7), new Vector3f(0, 1, 1), new Vector3f(1, 0, 0));
+            Camera mainCam = new Camera(new Vector3f(0, 7, -5), new Vector3f(0, 0, 1), new Vector3f(0, 1, 0));
             mainScene.AddCam(mainCam);
-            Light mainLight = new Light(new Vector3f(0,5,0), new Vector3f(0, -1, 0), 1000);
+            Light mainLight = new Light(new Vector3f(0,3,3), new Vector3f(0, -1, 0), 1000);
             mainScene.AddLight(mainLight);
 
-            Cube cube = new Cube(new Vector3f(-1, 3, -1), new Vector3f(0, 0, 1f));
+            Cube cube = new Cube(new Vector3f(-1, 1, 1), new Vector3f(0, 0, 1f));
             Add_Scene_Objcet(cube, "Cube");
-            Cube cube1 = new Cube(new Vector3f(0, 2, 0), new Vector3f(0, 1, 1f));
+            Cube cube1 = new Cube(new Vector3f(0, 2, 2), new Vector3f(0, 1, 1f));
             Add_Scene_Objcet(cube1, "Cube1");
-            Cube cube2 = new Cube(new Vector3f(1, 1, 1), new Vector3f(1, 0, 1f));
+            Cube cube2 = new Cube(new Vector3f(1, 3,-1), new Vector3f(1, 0, 1f));
             Add_Scene_Objcet(cube2, "Cube2");
-            Cube cube3 = new Cube(new Vector3f(0, 0, 2),new Vector3f(0),new Vector3f(10,0.1f,10));
-            Add_Scene_Objcet(cube3, "Cube3");
+            Cube cube3 = new Cube(new Vector3f(0, 0, 0),new Vector3f(0),new Vector3f(10,0.1f,10));
+            Add_Scene_Objcet(cube3, "Floor");
 
 
 
             renderTickThread = new Thread(() =>
                 {
+
                     while (true)
                     {
 
@@ -107,7 +107,6 @@ namespace CPU_Soft_Rasterization
             int index = mainScene.GetObjcetLastIndex();
             Cube cube = new Cube(new Vector3f(index), new Vector3f(1f / index));
             Add_Scene_Objcet(cube, "Cube" + index.ToString());
-            IsChanged = true;
 
         }
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -117,7 +116,6 @@ namespace CPU_Soft_Rasterization
                 SceneObject sj = (SceneObject)hierachy.SelectedItem;
                 mainScene.DeleteObject(sj.obj);
                 sceneObjectList.Remove(sj);
-                IsChanged = true;
             }
         }
 
@@ -141,14 +139,16 @@ namespace CPU_Soft_Rasterization
         private void ShowObjcetProperties(SceneObject sj)
         {
             inspector.Items.Clear();
-            Type type = typeof(Object);
-            System.Reflection.PropertyInfo[] propertyInfo = type.GetProperties();
-
-            foreach (var info in propertyInfo)
+            if (sj != null)
             {
-                inspector.Items.Add(info.Name);
-            }
+                Type type = sj.obj.GetType();
+                System.Reflection.PropertyInfo[] propertyInfo = type.GetProperties();
 
+                foreach (var info in propertyInfo)
+                {
+                    inspector.Items.Add(info.Name);
+                }
+            }
          
           
         }
@@ -203,12 +203,12 @@ namespace CPU_Soft_Rasterization
             }
             else if (e.Key == Key.A)
             {
-                 camMove = -mainScene.GetCamRight() * camMoveSpeed;
+                 camMove = mainScene.GetCamRight() * camMoveSpeed;
             }
             else if (e.Key == Key.D)
 
             {
-               camMove = mainScene.GetCamRight() * camMoveSpeed;
+               camMove = -mainScene.GetCamRight() * camMoveSpeed;
 
             }
             if (camMove != null)

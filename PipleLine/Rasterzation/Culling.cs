@@ -55,7 +55,7 @@ namespace CPU_Soft_Rasterization
         private bool IsObjInsideCam(Object obj, Camera cam)
         {
             var objPos = obj.transform.position;
-            var camPos = cam.position;
+            var camPos = cam.transform.position;
             var camToObjDir = (objPos - camPos).normalize();
             if (cam.camDir.DotProduct(camToObjDir) < 0)
                 return false;

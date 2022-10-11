@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <Folder Include="Main\" />
+    <Folder Include="Objects\Camera\" />
   </ItemGroup>
 
 </Project>

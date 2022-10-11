@@ -97,19 +97,19 @@ namespace CPU_Soft_Rasterization.Math.Martix
 
             float xangle = angles.x * MathF.PI / 180;
             Martix3f xmat = new Martix3f(1, 0, 0, 
-                                         0, -MathF.Cos(xangle), MathF.Sin(xangle),
+                                         0, MathF.Cos(xangle), -MathF.Sin(xangle),
                                          0, MathF.Sin(xangle), MathF.Cos(xangle));
             float yangle = angles.x  * MathF.PI / 180;
 
             Martix3f ymat = new Martix3f(MathF.Cos(yangle), 0, MathF.Sin(yangle),
                                          0, 1, 0,
-                                         MathF.Sin(yangle), 0, -MathF.Cos(yangle));
+                                         -MathF.Sin(yangle), 0, MathF.Cos(yangle));
             float zangle = angles.z * MathF.PI / 180;
 
-            Martix3f zmat = new Martix3f(-MathF.Cos(zangle), MathF.Sin(zangle), 0,
+            Martix3f zmat = new Martix3f(MathF.Cos(zangle), -MathF.Sin(zangle), 0,
                                           MathF.Sin(zangle), MathF.Cos(zangle), 0,
                                          0, 0, 1  );
-            return zmat * (ymat * xmat);
+            return zmat * ymat * xmat;
         }
     }
 }
